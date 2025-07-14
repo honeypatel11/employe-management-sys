@@ -1,17 +1,38 @@
-import { useNavigate } from "react-router-dom"
+
+import { useEffect, useState } from 'react';
+import EmployeeTable from '../components/EmployeeTable'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify';
 
 const Employee = () => {
-  const navigate = useNavigate();
-  return (
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-   <h1 className="text-4xl font-semibold text-teal-800 my-3">Employee Details...</h1>
+    const navigate = useNavigate();
+    const [employees, setEmployees] = useState([]);
 
-    <div className="flex items-center justify-between">
-                <button type="submit" onClick={() => navigate('./addemployee')}  className="text-white bg-gradient-to-r my-3 from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Add Employee</button>
+    useEffect(() => {
+        const data = JSON.parse(localStorage.getItem("employees")) || [];
+        setEmployees(data);
+    }, []);
+    
+    const employeeDelete = (id) => {
+        const updatedEmployee = employees.filter((emp) => {
+            return emp.id !== id ;
+        })
+        setEmployees(updatedEmployee);
+        localStorage.setItem("employees", JSON.stringify(updatedEmployee));
+        toast.success("Employee Deleted Successfully !");
+    }  
 
-              </div>
-   </div>
-  )
+    return (
+        <section>
+            <div className="container mx-auto">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-3xl font-semibold mt-5">Employees Details</h2>
+                    <button type="button" onClick={()=>navigate("/add-employee")} className="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2 text-center flex gap-2 mt-4"><i className="ri-add-line"></i>Add Employees</button>
+                </div>
+                <EmployeeTable employees={employees} employeeDelete={employeeDelete} />
+            </div>
+        </section>
+    )
 }
 
 export default Employee

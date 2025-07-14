@@ -1,35 +1,56 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify';
 
-const AddEmployee = () => {
+const Editemployee = () => {
     const navigate = useNavigate();
+    const { id } = useParams()
+    console.log(id);
 
     const [input, setInput] = useState({
         name: "", salary: "", department: "",
     })
 
+    useEffect(() => {
+        const employees = JSON.parse(localStorage.getItem("employees")) || [];
+        const editEmp = employees.find((emp) => {
+            return emp.id == id;
+        })
+
+        if (editEmp) {
+            setInput(editEmp);
+            console.log(editEmp);
+        } else {
+            toast.error("User Not Found !");
+            navigate("/employee");
+        }
+    }, [id])
+
     const handleChange = (e) => {
         setInput({ ...input, [e.target.id]: e.target.value })
     }
 
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
-        const employeeDetail = { id: Date.now(), ...input };
         const employees = JSON.parse(localStorage.getItem("employees")) || [];
-        employees.push(employeeDetail);
+        const updatedEmp = employees.map((emp) => {
+            return emp.id == id ? {
+                ...emp, ...input
+            } : emp 
+        })
 
-        localStorage.setItem("employees", JSON.stringify(employees));
-        setInput({name: "", salary: "", department: ""})
+        localStorage.setItem("employees", JSON.stringify(updatedEmp));
+        toast.success("Data Updated Successfully !");
+        setInput({name: "", salary: "", department: ""});
         navigate("/employees");
-        console.log(employees);
     }
 
     return (
         <div className="container mx-auto py-[30px]">
-            <h2 className="text-3xl font-semibold mb-5">Add Employee</h2>
-            <form onSubmit={handleSubmit}>
+            <h2 className="text-3xl font-semibold mb-5">Edit Employee</h2>
+            <form onSubmit={handleUpdate}>
                 <div className="grid gap-6 mb-6 md:grid-cols-2 items-center">
                     <div>
                         <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Employee Name</label>
@@ -50,7 +71,7 @@ const AddEmployee = () => {
                         </select>
                     </div>
                     <div>
-                        <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center mt-5">Submit</button>
+                        <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center mt-5">Update</button>
                     </div>
                 </div>
             </form>
@@ -58,4 +79,4 @@ const AddEmployee = () => {
     )
 }
 
-export default AddEmployee
+export default Editemployee
